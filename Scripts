@@ -1,6 +1,6 @@
-Step 1 :First Steps is to create an instance of spark ( Launch spark ) :  I’m using my local machine ( Windows 10 )  
+#Step 1 :First Steps is to create an instance of spark ( Launch spark ) :  I’m using my local machine ( Windows 10 )  
 
-Step 2: Adding the required packages:
+#Step 2: Adding the required packages:
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkContext._
 import org.apache.spark.SparkConf
@@ -9,14 +9,14 @@ import org.apache.spark.sql.{Row, SQLContext}
 import org.apache.spark.sql.types.{StructType, StructField, StringType, IntegerType}
 import org.apache.spark.sql.functions
 
- Step 3: Create the sqlContext objects 
+#Step 3: Create the sqlContext objects 
 val sqlc = new org.apache.spark.sql.SQLContext(sc)
  
 
-Step 4: Load the csv files into different scala variables :
+#Step 4: Load the csv files into different scala variables :
  I’m loading the files from a local diretory , you can also load them from a local HDFS direcotry
  
-Step 5: Set the Schema for the two files :
+#Step 5: Set the Schema for the two files :
 
 val schema = StructType(
 List(
@@ -49,15 +49,15 @@ StructField("data",StringType,true),
 StructField("last_modified_",StringType,true)))
  
 
-Step 6:  Create a dataframe and load the csv files using com.databricks.sparks.csv API  , since the files are without a header we set the schema and the delimiter .
+#Step 6:  Create a dataframe and load the csv files using com.databricks.sparks.csv API  , since the files are without a header we set the schema and the delimiter .
 val memo_LoadCsvDF = sqlc.read.format("com.databricks.spark.csv").option("delimiter","|").option("header", "false").schema(schema).load(memo_Csv)
 val memoChangeLoad = sqlc.read.format("com.databricks.spark.csv").option("delimiter","|").option("header", "false").schema(fields).load(memochange)
  
 
-Step 7: check the data to verify if the schema and the files are loaded correctly.
+#Step 7: check the data to verify if the schema and the files are loaded correctly.
  
  
-Step 8: Join between the two dataframes
+#Step 8: Join between the two dataframes
 val files_joinDF = memo_LoadCsvDF.join(memoChangeLoad, memo_LoadCsvDF("Id").equalTo(memoChangeLoad("memo_id")), "inner").selectExpr("Id","content_type_id","object_id","related_manager","related_id","memo_type","created_at","schedule_at","executed_at","status","message","flow","handler_name","actor","last_modified","request_id","change_data","past_request_ids","fee_code","fee_amount","data")
  
 
