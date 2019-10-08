@@ -1,0 +1,69 @@
+Step 1 :First Steps is to create an instance of spark ( Launch spark ) :  I’m using my local machine ( Windows 10 )  
+
+Step 2: Adding the required packages:
+import org.apache.spark.SparkContext
+import org.apache.spark.SparkContext._
+import org.apache.spark.SparkConf
+import org.apache.spark.sql._
+import org.apache.spark.sql.{Row, SQLContext}
+import org.apache.spark.sql.types.{StructType, StructField, StringType, IntegerType}
+import org.apache.spark.sql.functions
+
+ Step 3: Create the sqlContext objects 
+val sqlc = new org.apache.spark.sql.SQLContext(sc)
+ 
+
+Step 4: Load the csv files into different scala variables :
+ I’m loading the files from a local diretory , you can also load them from a local HDFS direcotry
+ 
+Step 5: Set the Schema for the two files :
+
+val schema = StructType(
+List(
+StructField("Id",IntegerType,true),
+StructField("content_type_id",IntegerType,true),
+StructField("object_id",IntegerType,true),
+StructField("related_manager",StringType,true),
+StructField("related_id",IntegerType,true),
+StructField("memo_type",StringType,true),
+StructField("created_at",StringType,true),
+StructField("schedule_at",StringType,true),
+StructField("executed_at",StringType,true),
+StructField("status",StringType,true),
+StructField("message",StringType,true),
+StructField("flow",StringType,true),
+StructField("handler_name",StringType,true),
+StructField("actor",StringType,true),
+StructField("last_modified",StringType,true),
+StructField("request_id",IntegerType,true),
+StructField("change_data",StringType,true),
+StructField("past_request_ids",StringType,true),
+StructField("fee_code",StringType,true),
+StructField("fee_amount",StringType,true)))
+ 
+
+val fields=StructType(
+List(StructField("memo_id",StringType,true),
+StructField("handler_name_",StringType,true),
+StructField("data",StringType,true),
+StructField("last_modified_",StringType,true)))
+ 
+
+Step 6:  Create a dataframe and load the csv files using com.databricks.sparks.csv API  , since the files are without a header we set the schema and the delimiter .
+val memo_LoadCsvDF = sqlc.read.format("com.databricks.spark.csv").option("delimiter","|").option("header", "false").schema(schema).load(memo_Csv)
+val memoChangeLoad = sqlc.read.format("com.databricks.spark.csv").option("delimiter","|").option("header", "false").schema(fields).load(memochange)
+ 
+
+Step 7: check the data to verify if the schema and the files are loaded correctly.
+ 
+ 
+Step 8: Join between the two dataframes
+val files_joinDF = memo_LoadCsvDF.join(memoChangeLoad, memo_LoadCsvDF("Id").equalTo(memoChangeLoad("memo_id")), "inner").selectExpr("Id","content_type_id","object_id","related_manager","related_id","memo_type","created_at","schedule_at","executed_at","status","message","flow","handler_name","actor","last_modified","request_id","change_data","past_request_ids","fee_code","fee_amount","data")
+ 
+
+We verify  that the join is using  the printSchema method
+files_joinDF.printSchema
+ 
+Check data for the combined dataframes
+files_joinDF.show(10)
+ 
